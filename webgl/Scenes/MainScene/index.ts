@@ -16,7 +16,6 @@ export default class MainScene extends AbstractScene<WebGLAppContext, THREE.Pers
 
   constructor(context: WebGLAppContext) {
     super(context)
-    this.setScene()
 
     this.scene = new THREE.Scene()
 
@@ -35,16 +34,10 @@ export default class MainScene extends AbstractScene<WebGLAppContext, THREE.Pers
     this.setObjects()
   }
 
-  private genContext = () => {
-    const ctx = this
-    return {
-      ...this.context,
-      scene: this.scene,
-      sceneState: this.sceneState,
-    }
-  }
-
-  private setScene() {}
+  private genContext = () => ({
+    ...this.context,
+    scene: this,
+  })
 
   private setObjects() {}
 
