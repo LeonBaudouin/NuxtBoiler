@@ -1,5 +1,6 @@
 import { defineNuxtConfig } from 'nuxt'
 import createMeta from './utils/meta/createMeta'
+import glsl from 'vite-plugin-glsl'
 
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
@@ -16,6 +17,7 @@ export default defineNuxtConfig({
   },
   layoutTransitions: true,
   vite: {
+    plugins: [glsl()],
     css: {
       preprocessorOptions: {
         scss: {

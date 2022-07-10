@@ -6,7 +6,8 @@
     "start": "node .output/server/index.mjs"
   },
   "devDependencies": {
-    "nuxt": "^3.0.0-rc.3"
+    "nuxt": "^3.0.0-rc.3",
+    "vite-plugin-glsl": "^0.2.0"
   },
   "dependencies": {
     "@0b5vr/tweakpane-plugin-rotation": "^0.1.1",
