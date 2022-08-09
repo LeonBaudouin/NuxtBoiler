@@ -1,7 +1,7 @@
 import { WebGLAppContext } from '~~/webgl'
 import * as THREE from 'three'
-import fragmentShader from './index.frag?raw'
-import vertexShader from './index.vert?raw'
+import fragmentShader from './index.frag'
+import vertexShader from './index.vert'
 
 export default class NoiseGenerator {
   private context: WebGLAppContext
@@ -26,8 +26,11 @@ export default class NoiseGenerator {
   }
 
   public getRenderTarget(id: string) {
-    if (!this.renderTargets.has(id))
-      this.renderTargets.set(id, new THREE.WebGLRenderTarget(0, 0, { depthBuffer: false, stencilBuffer: false }))
+    if (!this.renderTargets.has(id)) {
+      const renderTarget = new THREE.WebGLRenderTarget(0, 0, { depthBuffer: false, stencilBuffer: false })
+      this.context.renderTargetDebugger.registerRenderTarget(id, renderTarget)
+      this.renderTargets.set(id, renderTarget)
+    }
     return this.renderTargets.get(id)!
   }
 
