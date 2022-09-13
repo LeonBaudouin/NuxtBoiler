@@ -1,14 +1,16 @@
 import * as THREE from 'three'
 import { FolderApi, ListApi, TabPageApi } from 'tweakpane'
 import lerp from '~~/utils/math/lerp'
+import { createContext, extendContext } from './abstract/Context'
 import LifeCycle from './abstract/LifeCycle'
+import NoiseGenerator from './Components/NoiseGenerator'
 import RenderTargetDebugger from './Components/RenderTargetDebugger'
 import Ressources from './Ressources'
 import MainScene from './Scenes/MainScene'
 import Stats from './Stats'
 
 type Scenes = {
-  main: MainScene
+  main: MainScene | null
 }
 type NuxtApp = ReturnType<typeof useNuxtApp> & { $router: ReturnType<typeof useRouter> }
 export default class WebGL extends LifeCycle {
@@ -30,7 +32,19 @@ export default class WebGL extends LifeCycle {
   })
   private nuxtApp: NuxtApp
   private renderTargetDebugger: RenderTargetDebugger
+  private noiseGenerator: NoiseGenerator
   private globalUniforms = {}
+  public context = createContext({
+    clock: () => this.clock,
+    renderer: () => this.renderer,
+    state: () => this.state,
+    tweakpane: () => this.tweakpane as FolderApi | TabPageApi,
+    globalUniforms: () => this.globalUniforms,
+    ressources: () => this.ressources,
+    nuxtApp: () => this.nuxtApp,
+    renderTargetDebugger: () => this.renderTargetDebugger,
+    noiseGenerator: () => this.noiseGenerator,
+  })
 
   constructor(nuxtApp: any) {
     super()
@@ -41,7 +55,8 @@ export default class WebGL extends LifeCycle {
 
     this.setupRenderer()
     this.ressources = new Ressources(this.renderer)
-    this.renderTargetDebugger = new RenderTargetDebugger(this.genContext())
+    this.renderTargetDebugger = new RenderTargetDebugger(this.context)
+    this.noiseGenerator = new NoiseGenerator(this.context)
 
     this.setupClock()
     this.setupScenes()
@@ -62,24 +77,13 @@ export default class WebGL extends LifeCycle {
     sceneBlade.on('change', ({ value }) => (this.currentScene = value as keyof Scenes))
   }
 
-  private genContext = (tweakpane: FolderApi | TabPageApi | null = null) => ({
-    clock: this.clock,
-    renderer: this.renderer,
-    state: this.state,
-    tweakpane: tweakpane || (this.tweakpane as FolderApi | TabPageApi),
-    globalUniforms: this.globalUniforms,
-    ressources: this.ressources,
-    nuxtApp: this.nuxtApp,
-    renderTargetDebugger: this.renderTargetDebugger,
-  })
-
   private setupScenes() {
     const tabs = this.tweakpane.addTab({ pages: [{ title: 'Main' }] })
 
     const mainPage = tabs.pages[0]
 
     this.scenes = {
-      main: new MainScene(this.genContext(mainPage)),
+      main: new MainScene(extendContext(this.context, { tweakpane: mainPage })),
     }
   }
 
@@ -129,14 +133,13 @@ export default class WebGL extends LifeCycle {
 
     const currentScene = this.scenes[this.currentScene]
 
-    currentScene.tick(elapsedTime, deltaTime)
+    if (currentScene) currentScene.tick(elapsedTime, deltaTime)
 
     this.stats?.beforeRender()
-    this.renderer.render(currentScene.scene, currentScene.camera)
-
+    if (currentScene) this.renderer.render(currentScene.scene, currentScene.camera)
     this.renderTargetDebugger.tick()
     this.stats?.afterRender()
   }
 }
 
-export type WebGLAppContext = ReturnType<WebGL['genContext']>
+export type WebGLAppContext = WebGL['context']

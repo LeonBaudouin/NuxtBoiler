@@ -8,6 +8,8 @@ export default class MainScene extends AbstractScene<WebGLAppContext, THREE.Pers
   private debugCamera: DebugCamera
   private mainCamera: SimpleCamera
 
+  private cubeExample: THREE.Mesh
+
   private sceneState = reactive({})
 
   private params = {
@@ -18,11 +20,12 @@ export default class MainScene extends AbstractScene<WebGLAppContext, THREE.Pers
     super(context)
 
     this.scene = new THREE.Scene()
+    this.scene.background = new THREE.Color(0xe5e0de)
 
-    this.debugCamera = new DebugCamera(this.genContext(), { defaultPosition: new THREE.Vector3(12, 0.5, 0) })
+    this.debugCamera = new DebugCamera(this.genContext(), { defaultPosition: new THREE.Vector3(0, 0, 15) })
     this.scene.add(this.debugCamera.object)
 
-    this.mainCamera = new SimpleCamera(this.genContext(), { defaultPosition: new THREE.Vector3(0, 3, 15) })
+    this.mainCamera = new SimpleCamera(this.genContext(), { defaultPosition: new THREE.Vector3(0, 0, 15) })
     this.scene.add(this.mainCamera.object)
 
     this.camera = this.params.debugCam ? this.debugCamera.object : this.mainCamera.object
@@ -39,9 +42,14 @@ export default class MainScene extends AbstractScene<WebGLAppContext, THREE.Pers
     scene: this,
   })
 
-  private setObjects() {}
+  private setObjects() {
+    this.cubeExample = new THREE.Mesh(new THREE.BoxGeometry(1, 1), new THREE.MeshNormalMaterial())
+    this.scene.add(this.cubeExample)
+  }
 
   public tick(time: number, delta: number): void {
     this.debugCamera.tick(time, delta)
+    this.cubeExample.rotateX(0.01)
+    this.cubeExample.rotateY(0.005)
   }
 }

@@ -76,7 +76,7 @@ function buildWatch(uniform: THREE.IUniform, type: UniformType, object: Record<s
 export default function reactiveUniforms(
   uniforms: Record<string, THREE.IUniform>,
   object: Record<string, ValueToUniform | any>,
-  custom: Record<string, CustomWatch | any> = {},
+  custom: Record<string, CustomWatch | any | null> = {},
   debug: boolean = DEBUG
 ) {
   const unbindArray: (() => void)[] = []
@@ -88,7 +88,7 @@ export default function reactiveUniforms(
       continue
     }
 
-    if (key in custom) {
+    if (key in custom && custom[key]) {
       let unbind = custom[key](uniforms[uniformKey], object, key)
       unbindArray.push(unbind)
       continue

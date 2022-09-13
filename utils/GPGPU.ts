@@ -23,20 +23,20 @@ export default class GPGPU {
   public targetB: THREE.WebGLRenderTarget
   private scene: THREE.Scene
   private camera: THREE.OrthographicCamera
-  public quad: THREE.Mesh<THREE.PlaneBufferGeometry, THREE.ShaderMaterial> | null = null
+  public quad: THREE.Mesh<THREE.PlaneBufferGeometry, THREE.ShaderMaterial>
 
   public outputTexture: THREE.Texture
 
   constructor({
     size,
     renderer,
-    shader,
+    shader = null,
     initTexture,
     renderTargetParams = {},
   }: {
     size: THREE.Vector2
     renderer: THREE.WebGLRenderer
-    shader?: THREE.RawShaderMaterial
+    shader?: THREE.ShaderMaterial | null
     initTexture?: THREE.Texture
     renderTargetParams?: Partial<ConstructorParameters<typeof THREE.WebGLRenderTarget>[2]>
   }) {
@@ -55,13 +55,13 @@ export default class GPGPU {
     )
     this.camera.position.z = 100
 
-    if (shader) {
-      this.quad = new THREE.Mesh(new THREE.PlaneBufferGeometry(), shader)
-      this.quad.scale.set(this.size.x, this.size.y, 0)
-      this.quad.rotateX(Math.PI)
+    this.quad = shader
+      ? new THREE.Mesh(new THREE.PlaneBufferGeometry(), shader)
+      : new THREE.Mesh(new THREE.PlaneBufferGeometry())
+    this.quad.scale.set(this.size.x, this.size.y, 0)
+    this.quad.rotateX(Math.PI)
 
-      this.scene.add(this.quad)
-    }
+    this.scene.add(this.quad)
 
     this.targetA = new THREE.WebGLRenderTarget(this.size.x, this.size.y, {
       minFilter: THREE.NearestFilter,
@@ -83,45 +83,27 @@ export default class GPGPU {
     this.prerender(newInitTexture)
   }
 
-  public updateInitTexture(
-    newInitTexture: THREE.Texture,
-    quad: THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial> | null = null
-  ) {
-    this.prerender(newInitTexture, quad)
+  public setShader(shader: THREE.ShaderMaterial) {
+    this.quad.material = shader
+  }
+
+  public updateInitTexture(newInitTexture: THREE.Texture) {
+    this.prerender(newInitTexture)
   }
 
   public getBuffer() {
     return this.targetB
   }
 
-  public render({
-    overrideTexture = null,
-    overrideQuad = null,
-  }: {
-    overrideTexture?: THREE.Texture | null
-    overrideQuad?: THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial> | null
-  } = {}) {
-    if (overrideQuad) {
-      this.scene.add(overrideQuad)
-      overrideQuad.scale.set(this.size.x, this.size.y, 0)
-      overrideQuad.rotation.x = Math.PI
-      if (this.quad) this.quad.visible = false
-    }
+  public render(overrideTexture: THREE.Texture | null = null) {
     ;[this.targetB, this.targetA] = [this.targetA, this.targetB] // Intervert fbos
-    this.setQuadTexture(overrideTexture || this.targetA.texture, overrideQuad)
+    this.setQuadTexture(overrideTexture || this.targetA.texture)
 
     this.renderer.setRenderTarget(this.targetB)
-    // this.renderer.setRenderTarget(null)
     this.renderer.render(this.scene, this.camera)
-    // pass the new positional values to the scene users see
 
     this.renderer.setRenderTarget(null)
     this.outputTexture = this.targetB.texture
-
-    if (overrideQuad) {
-      this.scene.remove(overrideQuad)
-      if (this.quad) this.quad.visible = false
-    }
   }
 
   public dispose() {
@@ -130,17 +112,8 @@ export default class GPGPU {
     this.targetB.dispose()
   }
 
-  private prerender(
-    initTexture: THREE.Texture,
-    quad: THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial> | null = null
-  ) {
-    if (quad) {
-      this.scene.add(quad)
-      quad.scale.set(this.size.x, this.size.y, 0)
-      quad.rotation.x = Math.PI
-      if (this.quad) this.quad.visible = false
-    }
-    this.setQuadTexture(initTexture, quad)
+  private prerender(initTexture: THREE.Texture) {
+    this.setQuadTexture(initTexture)
 
     this.renderer.setRenderTarget(this.targetA)
     this.renderer.render(this.scene, this.camera)
@@ -150,18 +123,9 @@ export default class GPGPU {
     this.renderer.setRenderTarget(null)
 
     this.outputTexture = this.targetB.texture
-    if (quad) {
-      this.scene.remove(quad)
-      if (this.quad) this.quad.visible = false
-    }
   }
 
-  private setQuadTexture(
-    texture: THREE.Texture,
-    overrideQuad: THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial> | null = null
-  ) {
-    const quad = overrideQuad || this.quad
-    if (!quad) return
-    quad.material.uniforms.uFbo.value = texture
+  private setQuadTexture(texture: THREE.Texture) {
+    if (this.quad.material) this.quad.material.uniforms.uFbo.value = texture
   }
 }

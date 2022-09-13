@@ -1,5 +1,5 @@
 <template>
-  <div :style="{ '--vh': vh }">
+  <div :style="{ '--vh': vh, display: $params.dom ? 'block' : 'none' }">
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-const { $webgl, $tweakpane } = useNuxtApp()
+const { $webgl, $tweakpane, $params } = useNuxtApp()
 
 const showTweakpane = ref(true)
 
@@ -28,11 +28,14 @@ useCleanup(() => {
   refreshButton.on('click', () => $tweakpane.refresh())
 
   function raf() {
+    ;(fpsGraph as any).begin()
     $webgl.tick()
+    ;(fpsGraph as any).end()
     requestAnimationFrame(raf)
   }
 
   document.body.append($webgl.renderer.domElement)
+  $webgl.renderer.domElement.classList.add('threejs')
   raf()
 
   const setVh = () => {
@@ -77,7 +80,7 @@ a {
   }
 }
 
-body > canvas {
+.threejs {
   position: absolute;
   inset: 0;
   z-index: -1;

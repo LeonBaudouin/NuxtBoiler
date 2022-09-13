@@ -2,8 +2,8 @@ import * as THREE from 'three'
 import { WebGLRenderTarget } from 'three'
 import { ButtonApi, FolderApi } from 'tweakpane'
 import reactiveUniforms from '~~/utils/uniforms/reactiveUniforms'
-import { WebGLAppContext } from '~~/webgl'
 import AbstractObject from '~~/webgl/abstract/AbstractObject'
+import { extendContext } from '~~/webgl/abstract/Context'
 import fragmentShader from './index.frag'
 import vertexShader from './index.vert'
 
@@ -17,7 +17,8 @@ export type RenderTargetDebuggerParams = {
 export type RenderTargetDebuggerData = Required<RenderTargetDebuggerParams>
 
 export default class RenderTargetDebugger extends AbstractObject<
-  WebGLAppContext,
+  any, // any to avoid circular reference
+  // TODO : fix it
   THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>
 > {
   private renderTarget: THREE.WebGLRenderTarget | null = null
@@ -34,13 +35,17 @@ export default class RenderTargetDebugger extends AbstractObject<
   }
 
   constructor(
-    { tweakpane, ...context }: WebGLAppContext,
+    context: any,
     { name, ...params }: RenderTargetDebuggerParams & { name: string | null } = {
       ...RenderTargetDebugger.DEFAULT_PARAMS,
       name: null,
     }
   ) {
-    super({ ...context, tweakpane: tweakpane.addFolder({ title: 'RenderTargetDebugger', expanded: false, index: 1 }) })
+    super(
+      extendContext(context, {
+        tweakpane: context.tweakpane.addFolder({ title: 'RenderTargetDebugger', expanded: false, index: 1 }),
+      })
+    )
 
     this.defaultName = name
 
