@@ -17,7 +17,7 @@ export default defineNuxtConfig({
   },
   layoutTransitions: true,
   vite: {
-    plugins: [glsl()],
+    plugins: [glsl({ root: '/utils/glsl/' })],
     css: {
       preprocessorOptions: {
         scss: {
