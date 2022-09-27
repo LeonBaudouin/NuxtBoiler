@@ -67,7 +67,7 @@ useCleanup(() => {
   right: 0;
   width: 256px;
   overflow: auto;
-  height: 100vh;
+  max-height: 100vh;
 }
 
 a {

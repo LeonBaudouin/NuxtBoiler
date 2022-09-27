@@ -40,6 +40,7 @@ export function createContext<T extends Object>(target: AccessorObject<T>) {
 export function extendContext<A extends Object, B extends Object>(target: A, source: AccessorObject<B>) {
   const targetProxy = target as ContextProxy<A>
   if (!('__accessor' in targetProxy)) throw new Error('extendContext should receive a context as first argument')
-  targetProxy.__accessor = { ...targetProxy.__accessor, ...source }
-  return targetProxy as unknown as A & B
+  const accessor = { ...targetProxy.__accessor, ...source } as A & B
+  const newContext = createContext<A & B>(accessor)
+  return newContext
 }
