@@ -1,0 +1,15 @@
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.threejs {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: white;
+  width: 100% !important;
+  height: 100% !important;
+  user-select: none;
+}

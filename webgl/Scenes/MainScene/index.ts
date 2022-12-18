@@ -1,8 +1,12 @@
 import * as THREE from 'three'
 import { WebGLAppContext } from '~/webgl'
+import { SceneContext } from '~~/types/context'
 import AbstractScene from '~~/webgl/abstract/AbstractScene'
+import { extendContext } from '~~/webgl/abstract/Context'
 import DebugCamera from '~~/webgl/Components/Camera/DebugCamera'
 import SimpleCamera from '~~/webgl/Components/Camera/SimpleCamera'
+
+export type MainSceneContext = SceneContext<MainScene>
 
 export default class MainScene extends AbstractScene<WebGLAppContext, THREE.PerspectiveCamera> {
   private debugCamera: DebugCamera
@@ -16,16 +20,18 @@ export default class MainScene extends AbstractScene<WebGLAppContext, THREE.Pers
     debugCam: false,
   }
 
+  protected declare context: MainSceneContext
+
   constructor(context: WebGLAppContext) {
-    super(context)
+    super(extendContext(context, { scene: () => this }))
 
     this.scene = new THREE.Scene()
-    this.scene.background = new THREE.Color(0xe5e0de)
+    this.scene.background = new THREE.Color(0x000000)
 
-    this.debugCamera = new DebugCamera(this.genContext(), { defaultPosition: new THREE.Vector3(0, 0, 15) })
+    this.debugCamera = new DebugCamera(this.context, { defaultPosition: new THREE.Vector3(0, 0, 15) })
     this.scene.add(this.debugCamera.object)
 
-    this.mainCamera = new SimpleCamera(this.genContext(), { defaultPosition: new THREE.Vector3(0, 0, 15) })
+    this.mainCamera = new SimpleCamera(this.context, { defaultPosition: new THREE.Vector3(0, 0, 15) })
     this.scene.add(this.mainCamera.object)
 
     this.camera = this.params.debugCam ? this.debugCamera.object : this.mainCamera.object
@@ -36,11 +42,6 @@ export default class MainScene extends AbstractScene<WebGLAppContext, THREE.Pers
 
     this.setObjects()
   }
-
-  private genContext = () => ({
-    ...this.context,
-    scene: this,
-  })
 
   private setObjects() {
     this.cubeExample = new THREE.Mesh(new THREE.BoxGeometry(1, 1), new THREE.MeshNormalMaterial())

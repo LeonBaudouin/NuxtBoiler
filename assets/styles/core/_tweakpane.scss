@@ -1,0 +1,13 @@
+.tweakpane {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 256px;
+  overflow: auto;
+  max-height: 100vh;
+}
+
+.tp-fldv_c > .tp-cntv,
+.tp-tabv_c .tp-brkv > .tp-cntv {
+  margin-left: 0 !important;
+}

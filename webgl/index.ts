@@ -12,7 +12,9 @@ import Stats from './Stats'
 type Scenes = {
   main: MainScene | null
 }
+
 type NuxtApp = ReturnType<typeof useNuxtApp> & { $router: ReturnType<typeof useRouter> }
+
 export default class WebGL extends LifeCycle {
   public renderer: THREE.WebGLRenderer
 

@@ -6,8 +6,8 @@
     "start": "node .output/server/index.mjs"
   },
   "devDependencies": {
-    "nuxt": "^3.0.0-rc.3",
-    "vite-plugin-glsl": "^0.4.0"
+    "nuxt": "^3.0.0",
+    "vite-plugin-glsl": "^1.0.1"
   },
   "dependencies": {
     "@0b5vr/tweakpane-plugin-rotation": "^0.1.1",
@@ -19,6 +19,7 @@
     "resize-observer-polyfill": "^1.5.1",
     "sass": "^1.49.9",
     "stats.js": "^0.17.0",
+    "the-new-css-reset": "^1.7.3",
     "three": "^0.138.2",
     "tweakpane": "^3.0.7",
     "tweakpane-image-plugin": "^1.1.3"

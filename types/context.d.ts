@@ -1,3 +1,3 @@
-export type SceneContext<T extends THREE.Camera = THREE.Camera> = WebGLAppContext & {
-  scene: AbstractScene<WebGLAppContext, T>
-}
+import { WebGLAppContext } from '~~/webgl'
+
+export type SceneContext<S extends AbstractScene> = WebGLAppContext & { scene: S }
